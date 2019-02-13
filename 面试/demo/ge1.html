@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"
+        />
+        <title>定位兼容</title>
+        <style>
+            #geo_btn {
+                font-size: 1.2rem;
+                color: red;
+                cursor: pointer;
+            }
+            #toast {
+                width: 80%;
+                position: fixed;
+                bottom: 3%;
+                left: 10%;
+                z-index: 999999;
+                background-color: rgba(0, 0, 0, 0.7);
+                border-radius: 5px;
+                color: #fff;
+                padding: 10px 0;
+                text-align: center;
+                -webkit-animation: zoomOut 0.3s ease both;
+            }
+            @-webkit-keyframes zoomOut {
+                0% {
+                    opacity: 0;
+                    -webkit-transform: scale(0.6);
+                }
+                100% {
+                    opacity: 1;
+                    -webkit-transform: scale(1);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!--test html-->
+        <a onclick="return getLocation();" id="geo_btn">点我获取定位</a>
+
+        <!--js-->
+        <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+        <!-- <script src="zepto.min.js"></script> -->
+        <script>
+            var options = {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            }
+
+            function success(pos) {
+                var crd = pos.coords
+
+                console.log('Your current position is:')
+                console.log('Latitude : ' + crd.latitude)
+                console.log('Longitude: ' + crd.longitude)
+                console.log('More or less ' + crd.accuracy + ' meters.')
+            }
+
+            function error(err) {
+                console.warn('ERROR(' + err.code + '): ' + err.message)
+            }
+
+            navigator.geolocation.getCurrentPosition(success, error, options)
+
+            //定位
+            var DEFAULT_LONGITUDE = '120.730435',
+                DEFAULT_LATITUDE = '31.273391',
+                DEFAULT_PROVINCE = '江苏省',
+                DEFAULT_CITY = '苏州市'
+            function getLocation() {
+                showTips('正在定位中...')
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        showPosition,
+                        showError,
+                        {
+                            timeout: 5000, // 指定获取地理位置的超时时间，默认不限时，单位为毫秒
+                            maximumAge: 3000 // 最长有效期，在重复获取地理位置时，此参数指定多久再次获取位置。
+                        }
+                    )
+                } else {
+                    defaultLocation()
+                }
+            }
+            //定位成功
+            function showPosition(position) {
+                // 获得经度纬度
+                var x = position.coords.latitude || DEFAULT_LATITUDE,
+                    y = position.coords.longitude || DEFAULT_LONGITUDE
+                localStorage.setItem('latitude', x)
+                localStorage.setItem('longitude', y)
+                alert(x, y)
+                return
+                // 配置Baidu Geocoding API
+                $.ajax({
+                    type: 'GET',
+                    async: false, //false 同步, 默认 true 异步
+                    dataType: 'jsonp',
+                    url:
+                        'http://api.map.baidu.com/geocoder/v2/?ak=DOEKi19I91aFudLPLz0z5PoP&callback=renderReverse&location=' +
+                        localStorage.getItem('latitude') +
+                        ',' +
+                        localStorage.getItem('longitude') +
+                        '&output=json&pois=0',
+                    success: function(json) {
+                        if (
+                            json == null ||
+                            typeof json == 'undefined' ||
+                            json.status != 0
+                        )
+                            return
+                        var json = json.result.addressComponent
+                        localStorage.setItem('province', json.province)
+                        localStorage.setItem('city', json.city)
+                        removeTips()
+                    },
+                    error: function(xhr, type) {
+                        showError()
+                    }
+                })
+            }
+            //定位失败
+            function showError(error) {
+                defaultLocation()
+                switch (error.code) {
+                    case error.PERMISSION_DENIED: //用户不允许地理定位
+                        showToast('您不允许地理定位~', 3000)
+                        break
+                    case error.POSITION_UNAVAILABLE: //无法获取当前位置
+                        showToast('无法获取当前位置~', 3000)
+                        break
+                    case error.TIMEOUT: //操作超时
+                        showToast('定位超时，默认定位苏州市~', 3000)
+                        break
+                    case error.UNKNOWN_ERROR:
+                        showToast('未知错误~', 3000)
+                        break
+                }
+            }
+
+            //默认苏州
+            function defaultLocation() {
+                removeTips()
+                localStorage.setItem('latitude', DEFAULT_LATITUDE)
+                localStorage.setItem('longitude', DEFAULT_LONGITUDE)
+                localStorage.setItem('province', DEFAULT_PROVINCE)
+                localStorage.setItem('city', DEFAULT_CITY)
+            }
+
+            //显示提示框
+            var toast_timer = 0
+            function showToast(message, t) {
+                var alert = document.getElementById('toast')
+                if (alert == null) {
+                    alert = document.createElement('div')
+                    alert.id = 'toast'
+                    alert.className = 'fd'
+                    alert.innerText = message
+                } else {
+                    alert.style.opacity = 0.9
+                }
+                document.body.appendChild(alert)
+                t = t != undefined ? t : 1000
+                toast_timer = setTimeout('hideToast()', t)
+            }
+
+            //隐藏提示框
+            function hideToast() {
+                var alert = document.getElementById('toast')
+                if (alert != null) document.body.removeChild(alert)
+                clearTimeout(toast_timer)
+            }
+
+            //显示定位loading
+            function showTips(txt) {
+                $('body').append(
+                    '<div class="position_tips" style="width:100%;height:100%;position:fixed;top:0;left:0;z-index:998;background-color:rgba(0,0,0,.5);"><p style="width:95px;color:#fff;font-size:14px;text-align:center;position:fixed;top:10%;left:50%;margin-left:-45px;z-index:999;color:#fff;"><img width="100%" style="width:90px;margin-bottom:10px;" src="http://img.lanrentuku.com/img/allimg/1307/5-130H2191322-52.gif"/>' +
+                        txt +
+                        '</p></div>'
+                )
+            }
+
+            //移除定位loading
+            function removeTips() {
+                $('body')
+                    .find('.position_tips')
+                    .remove()
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Document</title>
+        <style>
+            .circle {
+                width: 50px;
+                height: 50px;
+                background: #345767;
+                border-radius: 50%;
+            }
+            .half-circle {
+                width: 50px;
+                height: 25px;
+                background: #345767;
+                border-radius: 25px 25px 0 0;
+            }
+            .four-circle {
+                width: 50px;
+                height: 50px;
+                background: #345767;
+                border-radius: 50px 0 0 0;
+            }
+            .arc {
+                width: 50px;
+                height: 50px;
+                background: #345767;
+                border-radius: 50px 0;
+                -webkit-transform: rotate(45deg);
+                -ms-transform: rotate(45deg);
+                -o-transform: rotate(45deg);
+                transform: rotate(45deg);
+            }
+
+            .triangle {
+                border: 50px solid rgb(123, 173, 123);
+                width: 0;
+                height: 0;
+                border-top-color: yellow;
+                border-right-color: blue;
+                border-bottom-color: pink;
+                border-left-color: orange;
+            }
+            .arrow {
+                background: none; /*为了清除前面div设置的背景颜色*/
+                border: 50px solid red;
+                width: 0;
+                height: 0;
+                border-color: red transparent transparent transparent;
+            }
+            .gl {
+                width: 12px;
+                height: 12px;
+                border-left: 1px solid #999;
+                border-bottom: 1px solid #999;
+                -webkit-transform: rotate(-135deg);
+                transform: rotate(-135deg);
+            }
+            .sl {
+                width: 12px;
+                height: 12px;
+                border-left: 1px solid #333;
+                border-bottom: 1px solid #333;
+                -webkit-transform: rotate(45deg);
+                transform: rotate(45deg);
+            }
+        </style>
+    </head>
+    <body>
+        <p>圆</p>
+        <div class="circle"></div>
+        <p>半圆</p>
+        <div class="half-circle"></div>
+        <p>扇形</p>
+        <div class="four-circle"></div>
+        <p>弧形</p>
+        <div class="arc"></div>
+        <p>三角形</p>
+        <div class="triangle"></div>
+        <p></p>
+        <div class="arrow"></div>
+        <p>小于、大于号</p>
+        <div class="gl"></div>
+        <p></p>
+        <div class="sl"></div>
+    </body>
+</html>
